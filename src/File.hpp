@@ -1,7 +1,7 @@
 #ifndef FILE_HPP
 #define FILE_HPP
 
-#include <Buffer.hpp>
+#include "Buffer.hpp"
 
 /* Returns NULL buffer on failure. */
 Buffer fileReadData(const char *path);

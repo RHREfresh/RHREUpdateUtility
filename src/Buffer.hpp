@@ -1,7 +1,7 @@
 #ifndef BUFFER_HPP
 #define BUFFER_HPP
 
-#include <Type.hpp>
+#include "Type.hpp"
 
 #include <cstring>
 

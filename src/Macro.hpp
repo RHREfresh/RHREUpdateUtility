@@ -1,7 +1,7 @@
 #ifndef MACRO_HPP
 #define MACRO_HPP
 
-#include <Type.hpp> // IWYU pragma: keep
+#include "Type.hpp" // IWYU pragma: keep
 
 #include <bit> // IWYU pragma: keep
 
