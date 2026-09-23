@@ -5,6 +5,8 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <windows.h>
+#include <shellapi.h>
 
 #include "Error.hpp"
 
@@ -25,19 +27,6 @@ bool stringEndsWith(std::string const &fullString, std::string const &ending) {
     }
 }
 
-int copyDirectory(std::filesystem::path fromPath, std::filesystem::path toPath, std::filesystem::copy_options copyOptions)
-{
-    try
-    {
-        std::filesystem::copy(fromPath, toPath, copyOptions);
-        return 0;
-    }
-    catch (std::filesystem::filesystem_error const &ex)
-    {
-        return 1;
-    }
-}
-
 int deleteDirectory(std::filesystem::path dir)
 {
     try
@@ -51,17 +40,49 @@ int deleteDirectory(std::filesystem::path dir)
     }
 }
 
+int copyDirectory(std::filesystem::path fromPath, std::filesystem::path toPath, std::filesystem::copy_options copyOptions)
+{
+    try
+    {
+        if (!std::filesystem::exists(toPath))
+        {
+            std::filesystem::create_directory(toPath);
+        }
+
+        for (auto const& dir_entry : std::filesystem::directory_iterator{fromPath})
+        {
+            std::string entry_filename = dir_entry.path().filename().string();
+            std::filesystem::path target_file_path = toPath / entry_filename;
+
+            if (std::filesystem::exists(target_file_path))
+            {
+                std::filesystem::remove_all(target_file_path);
+            }
+
+            std::filesystem::copy(dir_entry.path(), target_file_path, copyOptions);
+        }
+        return 0;
+    }
+    catch (std::filesystem::filesystem_error const &ex)
+    {
+        printf("%s", ex.what());
+        return 1;
+    }
+}
+
 int launchRhre(std::filesystem::path dir)
 {
     for (auto const& dir_entry : std::filesystem::directory_iterator{dir})
     {
-        std::string entryPath = dir_entry.path();
+        std::string entryPath = dir_entry.path().string();
         if (stringEndsWith(entryPath, ".exe"))
         {
-            CreateP
-            break;
+            ShellExecute(NULL, "open", entryPath.c_str(), NULL, NULL, SW_SHOWNORMAL);
+            return 0;
         }
     }
+
+    return 1;
 }
 
 int main(int argc, char **argv) {
@@ -76,7 +97,7 @@ int main(int argc, char **argv) {
   std::filesystem::path installPath = std::filesystem::path(installDirectory);
 
   const auto copyOptions = std::filesystem::copy_options::overwrite_existing
-                                             | std::filesystem::copy_options::recursive;
+                         | std::filesystem::copy_options::recursive;
 
   // try to copy directory 3 times
   printf("Copying extracted update into location...\n");
@@ -118,16 +139,16 @@ int main(int argc, char **argv) {
   int launchAttempt = 1;
   while (launchAttempt < 4)
   {
-    if (deleteDirectory(extractedPath) == 0) break;
-    if (removeAttempt < 3)
+    if (launchRhre(installPath) == 0) break;
+    if (launchAttempt < 3)
     {
-        Error("Removing failed! Retrying...\n");
-        removeAttempt++;
+        Error("Launching failed! Retrying...\n");
+        launchAttempt++;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     else
     {
-        Panic("Continuously failed to remove files!");
+        Panic("Continuously failed to launch RHREfresh!");
     }
   }
   printf("Update complete! Enjoy RHREfresh, and keep your rhythm up! <3\n");

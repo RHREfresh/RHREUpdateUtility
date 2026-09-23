@@ -6,20 +6,19 @@ pool link_pool
 rule cc
   deps = gcc
   depfile = $out.d
-  command = g++ -MMD -MF $out.d $cflags -c $in -o $out
+  command = x86_64-w64-mingw32-g++ -MMD -MF $out.d $cflags -c $in -o $out
 
 rule link
   pool = link_pool
-  command = g++ $ldflags $in -o $out
+  command = x86_64-w64-mingw32-g++ $ldflags $in -o $out -static
 
 outdir = build
 cflags = -std=c++20 -O3 -Isrc
 ldflags = -lm
 
 build $outdir/main.o: cc src/main.cpp
-build $outdir/File.o: cc src/File.cpp
 build $outdir/Error.o: cc src/Error.cpp
 
-build $outdir/RHREUpdater: link $
+build $outdir/RHREExeUpdateHelper: link $
     $outdir/main.o $
-    $outdir/File.o $outdir/Error.o 
+    $outdir/Error.o 
