@@ -11,8 +11,8 @@
 #include "Error.hpp"
 
 void printHelp(char **argv) {
-  printf("RHREfresh Exe Update Helper v1.0\n");
-  printf("RHREfresh Exe Update Helper " __DATE__ " " __TIME__ "\n\n");
+  printf("RHRE Update Utility v1.0\n");
+  printf("RHRE Update Utility " __DATE__ " " __TIME__ "\n\n");
 
   printf("usage: %s <extracted directory> <install directory>\n", argv[0]);
   exit(1);
