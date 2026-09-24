@@ -19,6 +19,6 @@ ldflags = -lm
 build $outdir/main.o: cc src/main.cpp
 build $outdir/Error.o: cc src/Error.cpp
 
-build $outdir/RHREExeUpdateHelper: link $
+build $outdir/RHREUpdateUtility: link $
     $outdir/main.o $
     $outdir/Error.o 
