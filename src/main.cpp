@@ -110,13 +110,31 @@ int main(int argc, char **argv) {
     if (copyDirectory(extractedPath, installPath, copyOptions) == 0) break;
     if (copyAttempt < maxAttemptsPerStep)
     {
-        Error("Copying failed! Retrying...\n");
+        Warn("Copying failed! Retrying...\n");
         copyAttempt++;
         std::this_thread::sleep_for(std::chrono::seconds(secondsBetweenRetries));
     }
     else
     {
         Panic("Continuously failed to copy files!");
+    }
+  }
+
+  // launch rhrefresh
+  printf("Launching RHREfresh...\n");
+  int launchAttempt = 1;
+  while (launchAttempt <= maxAttemptsPerStep)
+  {
+    if (launchRhre(installPath) == 0) break;
+    if (launchAttempt < maxAttemptsPerStep)
+    {
+        Warn("Launching failed! Retrying...\n");
+        launchAttempt++;
+        std::this_thread::sleep_for(std::chrono::seconds(secondsBetweenRetries));
+    }
+    else
+    {
+        Panic("Continuously failed to launch RHREfresh!");
     }
   }
 
@@ -128,7 +146,7 @@ int main(int argc, char **argv) {
     if (deleteDirectory(extractedPath) == 0) break;
     if (removeAttempt < maxAttemptsPerStep)
     {
-        Error("Removing failed! Retrying...\n");
+        Warn("Removing failed! Retrying...\n");
         removeAttempt++;
         std::this_thread::sleep_for(std::chrono::seconds(secondsBetweenRetries));
     }
@@ -138,22 +156,6 @@ int main(int argc, char **argv) {
     }
   }
 
-  printf("Launching RHREfresh...\n");
-  int launchAttempt = 1;
-  while (launchAttempt <= maxAttemptsPerStep)
-  {
-    if (launchRhre(installPath) == 0) break;
-    if (launchAttempt < maxAttemptsPerStep)
-    {
-        Error("Launching failed! Retrying...\n");
-        launchAttempt++;
-        std::this_thread::sleep_for(std::chrono::seconds(secondsBetweenRetries));
-    }
-    else
-    {
-        Panic("Continuously failed to launch RHREfresh!");
-    }
-  }
   printf("Update complete! Enjoy RHREfresh, and keep your rhythm up! <3\n");
   std::this_thread::sleep_for(std::chrono::seconds(1));
   return 0;
