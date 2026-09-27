@@ -10,8 +10,11 @@
 
 #include "Error.hpp"
 
+const int maxAttemptsPerStep = 20;
+const int secondsBetweenRetries = 1;
+
 void printHelp(char **argv) {
-  printf("RHRE Update Utility v1.0\n");
+  printf("RHRE Update Utility v1.1\n");
   printf("RHRE Update Utility " __DATE__ " " __TIME__ "\n\n");
 
   printf("usage: %s <extracted directory> <install directory>\n", argv[0]);
@@ -102,14 +105,14 @@ int main(int argc, char **argv) {
   // try to copy directory 3 times
   printf("Copying extracted update into location...\n");
   int copyAttempt = 1;
-  while (copyAttempt < 4)
+  while (copyAttempt <= maxAttemptsPerStep)
   {
     if (copyDirectory(extractedPath, installPath, copyOptions) == 0) break;
-    if (copyAttempt < 3)
+    if (copyAttempt < maxAttemptsPerStep)
     {
         Error("Copying failed! Retrying...\n");
         copyAttempt++;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(secondsBetweenRetries));
     }
     else
     {
@@ -120,14 +123,14 @@ int main(int argc, char **argv) {
   // delete old file
   printf("Removing download...\n");
   int removeAttempt = 1;
-  while (removeAttempt < 4)
+  while (removeAttempt <= maxAttemptsPerStep)
   {
     if (deleteDirectory(extractedPath) == 0) break;
-    if (removeAttempt < 3)
+    if (removeAttempt < maxAttemptsPerStep)
     {
         Error("Removing failed! Retrying...\n");
         removeAttempt++;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(secondsBetweenRetries));
     }
     else
     {
@@ -137,14 +140,14 @@ int main(int argc, char **argv) {
 
   printf("Launching RHREfresh...\n");
   int launchAttempt = 1;
-  while (launchAttempt < 4)
+  while (launchAttempt <= maxAttemptsPerStep)
   {
     if (launchRhre(installPath) == 0) break;
-    if (launchAttempt < 3)
+    if (launchAttempt < maxAttemptsPerStep)
     {
         Error("Launching failed! Retrying...\n");
         launchAttempt++;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(secondsBetweenRetries));
     }
     else
     {
